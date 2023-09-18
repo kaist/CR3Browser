@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title></title>
+  <script src="js/jquery-3.7.1.min.js"></script>
+
+
+<script src="js/lightgallery.umd.js
+"></script>
+<link href="css/lightgallery.css
+" rel="stylesheet">
+
+  <script src="js/semantic.min.js"></script>
+  <link href="css/semantic.css" rel="stylesheet">
+  <script src="js/vue.js"></script>
+
+
+
+  <style>
+    .ui.dimmer {background:#27292ae0!important;}
+    body {background-color:black;width:100%;}
+    .nomarg {margin:0px !important;}
+
+    .modal_close {
+        top:1rem !important;
+        right: 1rem !important;
+    }
+</style>
+</head>
+<body>
+
+    <div id="app"  style=";width:100%;">
+
+        <div  v-if="show_root">
+            <div style="position:absolute;left:5%;width:90%;top:50%;transform: translateY(-50%);">
+                <div style="padding-top:20px;text-align: center;" class="ui centered grid">
+                    <div class="ui centered row">
+                        <button id="startfolder" onclick="startfolder()" style="width:90%;max-width:300px;" class="massive secondary ui button">
+                            <i class="icon folder open"></i>
+                            <span data-lng="scan">Choose folder</span>
+                        </button>       
+                    </div>
+
+                    <div class="ui  row">
+                        <div style="width:90%;max-width:300px;" class="ui toggle big inverted checkbox scan_checkbox">
+                          <input id="only_star_check" type="checkbox" name="public">
+                          <label data-lng="only_rated">Scan only rated photos</label>
+                      </div>
+                    </div>
+
+
+
+
+
+                  <div class="ui centered row">
+    <div id="progress_id" style="display:none;width:90%;max-width:300px;" class="">
+                      <div class="ui inverted progress">
+    <div class="bar">
+      <div class="progress"></div>
+    </div>
+    <div data-lng="scanning" class="label">Scanning files...</div>
+  </div>
+             </div>            
+                </div>
+
+
+
+          </div>
+      </div>
+  </div>
+
+  <div v-if="show_grid">
+
+<div class="ui inverted top fixed menu">
+  <span class="item"><button onclick="go_start();" class="ui grey button"><i class="chevron left icon"></i></button></span>
+  <div class="right menu">
+    <span class="item"><button onclick="start_filter();" class="ui grey button"><i class="filter icon"></i><span data-lng="filters">Filters</span></button></span>    
+    <span class="item"><button onclick="start_export();" class="ui grey button"><i class="download icon"></i><span data-lng="export">Export</span></button></span>
+
+  </div>
+
+</div>
+
+
+    <div style="padding-top: 60px;" class="ui container">
+
+    <div  class="ui six doubling cards">
+  <a v-bind:onclick="'open_gallery('+index+')'"  v-for="(ph,index) in all_photos" v-bind:id="'gid'+index" style="width: 160px;height: 120px;" class="card">
+      <img style="object-fit: cover;" width="160" height="120" style="" v-bind:src="'/get_thumb?path='+ph[0]" >
+      <div v-if="ph[1]" style="position: absolute;bottom:5px;right:0px;"><button   onclick="check_action();" class="ui green circular mini icon button"><i class="check square outline icon"></i></button></div>
+      <div style="position: absolute;bottom:5%;left:5%;">
+        <i v-for="n in ph[2]" class="yellow small star icon"></i>
+      </div>
+  </a>
+</div>
+</div>
+
+  <div class="check_button" style="display:none;z-index:9999;position: fixed;right:0%;bottom:0%;transform: translate(-20%,-20%);" >
+    <button id="check_button2"  onclick="check_action();" class="ui circular massive icon button">
+  <i class="check square outline icon"></i>
+</button>
+  </div>
+
+  <div class="check_button ui  black  label inverted" style="margin:0px !important;padding:5px !important;display:none;z-index:9999;position: fixed;left:0%;bottom:0%;transform: translate(0%,0%);" >
+    <button style="margin:0px !important;padding:.5rem !important;" onclick="reset_rating()" class="circular ui icon button big">
+  <i class="icon minus circle"></i>
+</button><div   style="padding: 5px;" class="ui huge yellow rating rating_class" data-rating="0"  data-max-rating="5"></div>
+  </div>
+
+
+  <div class="check_button" style="display:none;z-index:9999;position: fixed;left:0%;top:0%;transform: translate(0%,0%);" >
+    <button onclick="exit_gallery();" class="ui huge black  label counter2"></button></div>
+  </div>
+
+
+  </div>
+
+
+
+<div class="ui mini top aligned inverted modal filter_modal">
+  <i class="close icon modal_close"></i>
+  <div data-lng="filters" class="header">Filters</div>
+  <div class="content">
+
+
+
+<div class="ui form">
+  <div class="field">
+
+
+<div class="ui fluid inverted multiple selection dropdown">
+  <input type="hidden" name="country">
+  <i class="dropdown icon"></i>
+  <div data-lng="filter_show" class="default text">Show only with...</div>
+  <div class="menu">
+  <div class="item" data-value="ch">
+    <i class="nomarg check square outline green icon"></i> <span data-lng="checked">Checked</span>
+  </div>    
+  <div class="item" data-value="r1">
+    <i class="nomarg yellow star icon"></i>
+  </div>
+
+  <div class="item" data-value="r2">
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+  </div>
+
+  <div class="item" data-value="r3">
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+  </div>
+
+  <div class="item" data-value="r4">
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+  </div>
+
+  <div class="item" data-value="r5">
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+    <i class="nomarg yellow star icon"></i>
+  </div>
+
+
+</div>
+</div>
+
+  </div>
+</div>
+
+<button onclick="filter()" id="apply_button" style="margin-top: 10px;" class="ui fluid inverted labeled button" tabindex="0">
+  <div class="ui fluid black button">
+    <i class="filter icon"></i> <span data-lng="apply_filter">Apply Filter</span>
+  </div>
+  <span id="filter_count" class="ui basic left inverted pointing black label">
+    0
+  </span>
+</button>
+
+<button onclick="reset_filter();" id="reset_button"  style="margin-top: 10px;" class="ui fluid black button">
+    <i class="eye icon"></i> <span data-lng="show_all">Show All</span>
+</button>
+
+
+  </div>
+</div>
+
+</div>
+
+<div class="ui mini top aligned inverted modal export_modal">
+    <i class="close icon modal_close"></i>
+  <div class="header"><span data-lng="export">Export</span> <span id="all_len">0</span> <span data-lng="files">files</span>.</div>
+  <div class="content">
+    <span data-lng="export_hint">Apply filters before exporting if you don't need to export all photos.</span>
+
+<button onclick="export_app();" id="export_app_button"  style="margin-top: 10px;" class="ui fluid black button">
+    <i class="file export icon"></i> <span data-lng="export_to_app">Export to app</span>...
+</button>
+
+<button onclick="export_copy();" id="export_copy_button"  style="margin-top: 10px;" class="ui fluid black button">
+    <i class="copy icon"></i> <span data-lng="copy_files">Copy files</span>...
+</button>
+
+<div id="progress_copy_id" style="display:none;width:100%;margin-top:20px;" class="">
+                      <div class="ui inverted progress progress_copy">
+    <div class="bar">
+      <div class="progress"></div>
+    </div>
+    <div class="label"></div>
+  </div>
+             </div>  
+
+  </div>
+</div>
+
+<div id="gid"></div>
+
+<script type="text/javascript" charset="utf-8">
+var galleryDyn=[];
+var gallery;
+var cur_slide=0;
+var all_list=[];
+var filter_val='';
+
+
+var locale = "ru";
+const translations = {
+  "en": {
+    "scan": "Choose folder",
+    "only_rated":"Add only rated photos",
+    "scanning":"Scanning files...",
+    "filters":"Filters",
+    "export":"Export",
+    "filter_show":"Show only with...",
+    "checked":"Checked",
+    "apply_filter":"Apply filter",
+    "show_all":"Show all",
+    "files":"files",
+    "export_to_app":"Export to app",
+    "copy_files":'Copy files',
+    "export_hint":"Apply filters before exporting if you don't need to export all photos.",
+    "scanning":"Scanning",
+    "copying":"Copying files",
+    "copy_ok":"All files are copied",
+
+  },
+  "ru": {
+    "scan":"Выбрать папку",
+    "only_rated": "Добавить только фото с рейтингом",
+    "scanning":"Сканирование файлов...",
+    "filters":"Фильтры",
+    "export":"Экспорт",
+     "filter_show":"Показать только с...",
+     "checked":"С пометкой",
+    "apply_filter":"Применить фильтр",
+    "show_all":"Показать все",
+    "files":"файлов",
+    "export_to_app":"Экспортировать в приложение",
+    "copy_files":'Копировать файлы',
+    "export_hint":"Примените фильтры до экспорта, если вы не хотите экспортировать все фотографии.",
+    "scanning":"Сканирование",
+    "copying":"Копирование файлов",
+    "copy_ok":"Все файлы скопированы",
+
+
+  },
+};
+
+if (navigator.language.includes('ru')){
+    locale='ru';
+}
+else{
+    locale='en';
+};
+
+
+document.querySelectorAll("[data-lng]").forEach(translateElement);
+
+
+function translateElement(element) {
+  const key = element.getAttribute("data-lng");
+  const translation = translations[locale][key];
+  element.innerText = translation;
+}
+
+
+
+
+$('.dropdown').dropdown({
+    closeOnChange:true,
+    onChange: function (val) {
+        $(this).dropdown('hide');
+        filter_val=val;
+        calc_filter();
+
+    },
+    onAdd: function (val) {
+        $(this).dropdown('hide');
+
+    },
+})
+;
+
+
+$('.grid_image')
+  .visibility({
+    type       : 'image',
+    transition : 'fade in',
+    duration   : 1000
+  })
+;
+
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        only_star:true,
+        show_root:true,
+        show_grid:false,
+        all_photos:[],
+    },
+});
+
+
+
+function go_start(){
+    $('#progress_id').hide();
+    app.all_photos=[];
+    app.show_grid=false;
+    app.show_root=true;
+}
+
+function export_copy(){
+        $('#export_copy_button').addClass('disabled');
+        $('#export_copy_button').addClass('loading');
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'export_copy','data':app.all_photos}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(msg) {
+                        //$('#export_copy_button').removeClass('disabled');
+                        //$('#export_copy_button').removeClass('loading');
+                        //$('.export_modal').modal('hide');
+
+            }
+        }); 
+}
+
+
+function export_app(){
+        $('#export_app_button').addClass('disabled');
+        $('#export_app_button').addClass('loading');
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'export_app','data':app.all_photos}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(msg) {
+                        $('#export_app_button').removeClass('disabled');
+                        $('#export_app_button').removeClass('loading');
+                        $('.export_modal').modal('hide');
+
+            }
+        }); 
+}
+
+
+function reset_filter(){
+        $('#reset_button').addClass('disabled');
+        $('#reset_button').addClass('loading');
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'get_all'}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(msg) {
+                        $('#reset_button').removeClass('disabled');
+                        $('#reset_button').removeClass('loading');
+                        $('.filter_modal').modal('hide');
+                        all_list=msg['all_photos'];
+                        app.all_photos=msg['all_photos'];
+                        self.start_grid();
+
+            }
+        });
+
+}
+
+function filter(){
+        $('#apply_button').addClass('disabled');
+        $('#apply_button').addClass('loading');
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'filter','data':filter_val.split(',')}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(msg) {
+                        $('#apply_button').removeClass('disabled');
+                        $('#apply_button').removeClass('loading');
+                        $('.filter_modal').modal('hide');
+                        all_list=msg['all_photos'];
+                        app.all_photos=msg['all_photos'];
+
+
+
+                        self.start_grid();
+
+            }
+        });
+};
+
+
+    function calc_filter(){
+        var lst=filter_val.split(',');
+        var count=0;
+        app.all_photos.forEach((element) => {
+                    if (element[1]==1 && lst.indexOf("ch") != -1){count++;};
+                    if (element[2]==1 && lst.indexOf("r1") != -1){count++;};
+                    if (element[2]==2 && lst.indexOf("r2") != -1){count++;};                    
+                    if (element[2]==3 && lst.indexOf("r3") != -1){count++;};
+                    if (element[2]==4 && lst.indexOf("r4") != -1){count++;};
+                    if (element[2]==5 && lst.indexOf("r5") != -1){count++;};                  
+                    });
+        $('#filter_count').html(count);
+
+    }
+
+
+    function start_export() {
+        $('#all_len').html(app.all_photos.length);
+
+$('.export_modal')
+  .modal('show');
+;
+
+
+    }
+
+    function start_filter() {
+
+$('.filter_modal')
+  .modal('show');
+;
+
+
+    }
+
+    function startfolder() {
+        var ch_val=$('.scan_checkbox').checkbox('is checked');
+
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'startfolder','data':ch_val}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(msg) {
+            }
+        });
+
+
+    }
+    function startscanv(data){
+        $('#startfolder').addClass('disabled');
+        $('.scan_checkbox').addClass('disabled');
+        $('#progress_id').show();
+
+$('.ui.progress')
+  .progress({
+    duration : 200,
+    value:data['count'],
+    total:data['all'],
+    text     : {
+      active: translations[locale]['scanning']+'... {value}/{total}'
+    }
+  })
+;
+
+    }
+
+    function indata(s){
+        data=JSON.parse(s);
+        if (data['command']=='start_scan')
+                {
+                    startscanv(data['payload']);
+
+                }
+        if (data['command']=='copy_end'){
+
+            $('#progress_copy_id').hide();
+
+            $('#export_copy_button').removeClass('disabled');
+            $('#export_copy_button').removeClass('loading');
+            $('.export_modal').modal('hide');
+            $.toast({message: translations[locale]['copy_ok']});
+
+
+        }
+        if (data['command']=='copy_action')
+                {
+
+                    $('#progress_copy_id').show();
+
+                    $('.progress_copy')
+                      .progress({
+                        duration : 200,
+                        value:data['payload']['count'],
+                        total:data['payload']['all'],
+                        text     : {
+                          active: translations[locale]['copying']+': {value}/{total}'
+                        }
+                      })
+                    ;     
+
+
+
+                }
+        if (data['command']=='end_scan')
+            {temp_start_grid();}
+
+        
+    };
+
+    function temp_start_grid(){
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'get_all'}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: true,
+            success: function(msg) {
+                all_list=msg['all_photos'];
+                app.all_photos=msg['all_photos'];
+
+
+
+                self.start_grid();
+            }
+        });
+
+    };
+
+    function open_gallery(slide){
+        gallery.openGallery(slide);
+    }
+
+    function start_grid(){
+        app.show_root=false;
+        app.show_grid=true;
+
+
+
+Vue.nextTick(function () {
+    galleryDyn=[];
+    app.all_photos.forEach((element) => {
+                galleryDyn.push({'src':'/get_full?path='+element[0]});
+                });
+    gallery=window.lightGallery(document.getElementById('gid'), {
+        dynamic:true,
+        preload:5,
+        dynamicEl:galleryDyn,
+        licenseKey:'1234',
+        download:false,
+        allowMediaOverlap:true,
+        speed: 50,
+        hideBarsDelay: 1000,
+        closeOnTap:false,
+        hideScrollbar:true,
+
+        // ... other settings
+    });
+    const lg = document.getElementById('gid');
+
+
+    lg.addEventListener('lgAfterOpen', () => {
+     $('.check_button').show(500);
+        });
+
+
+    lg.addEventListener('lgBeforeClose', () => {
+     $('.check_button').hide();
+     document.getElementById("gid"+cur_slide).scrollIntoView();
+     window.scrollBy(0, -60);
+        });
+
+
+    lg.addEventListener('lgAfterSlide', (event) => {
+        const { index, prevIndex } = event.detail;
+        cur_slide=index;
+        $('.counter2').html('<i class="angle left icon"></i>'+(index+1)+'/'+app.all_photos.length);
+        $('.rating_class').rating('set rating',app.all_photos[cur_slide][2]);
+        $('.rating_class')
+  .rating('setting', 'onRate', function(value) {
+        var cur=app.all_photos[cur_slide];
+        cur[2]=value;
+        Vue.set(app.all_photos,cur_slide,cur);
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'set','data':JSON.stringify(app.all_photos[cur_slide])}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: true,
+            success: function(msg) {}
+        });  
+
+   
+
+      
+  });
+
+        if (app.all_photos[cur_slide][1])
+            {$('#check_button2').addClass('green')}
+        else
+            {$('#check_button2').removeClass('green')}
+
+    });
+
+
+
+    $('.ui.rating')
+  .rating()
+;
+
+
+
+
+})
+
+
+
+
+
+
+
+
+
+
+    };
+
+    function reset_rating(){
+        var cur=app.all_photos[cur_slide];
+        cur[2]=0;
+        $('.rating_class').rating('set rating',0);
+        Vue.set(app.all_photos,cur_slide,cur);
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'set','data':JSON.stringify(app.all_photos[cur_slide])}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: true,
+            success: function(msg) {}
+        });  
+
+    };
+
+    function check_action(){
+        var cur=app.all_photos[cur_slide];
+        var cur_check=!cur[1];
+        cur[1]=cur_check;
+        Vue.set(app.all_photos,cur_slide,cur);
+        if (cur_check)
+            {$('#check_button2').addClass('green');
+    }
+        else
+            {$('#check_button2').removeClass('green');}
+
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'set','data':JSON.stringify(app.all_photos[cur_slide])}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: true,
+            success: function(msg) {}
+        });  
+
+
+    }
+
+    function exit_gallery(){
+        gallery.closeGallery();
+    }
+
+    function startscan(){
+        $.ajax({
+            url: '/action',
+            type: 'POST',
+            data: JSON.stringify({'action':'startscan'}),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: true,
+            success: function(msg) {
+            }
+        });   
+
+    }
+
+
+</script>
+</body>
+</html>
