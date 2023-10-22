@@ -74,6 +74,7 @@ class MainParser:
         self.orientation=0
         self.thumb=b''
         self.image=b''
+        self.full_size=b''
         self.tags = { b'ftyp':self.ftyp, b'moov':self.moov, b'uuid':self.uuid, b'stsz':self.stsz, b'co64':self.co64, b'PRVW':self.prvw, b'CTBO':self.ctbo, b'THMB':self.thmb, b'CNCV':self.cncv,
                  b'CDI1':self.cdi1, b'IAD1':self.iad1, b'CMP1':self.cmp1, b'CRAW':self.craw, b'CNOP':self.cnop }  
         self.count = dict()
@@ -83,16 +84,14 @@ class MainParser:
         if self.cr3[b'CNCV'].find(b'CanonCRM')>=0:
             pass
         elif self.cr3[b'CNCV'].find(b'CanonCR3')>=0:
-            #trak_list = [ 'trak1']
-            #trak_msg = [ '0jpg%02d.jpg' ] 
-            #for trak, msg in zip(trak_list, trak_msg):
-            #    if trak in self.cr3:
-            #        for offset, size, index in zip( self.cr3[trak][b'co64'], self.cr3[trak][b'stsz'], range( len(self.cr3[trak][b'co64']) ) ):
-            #            filename = msg % (index)
-            #            picture = data[ offset: offset+size ] 
-            #            f = open( filename,'wb' )
-            #            f.write( picture )
-            #            f.close()
+            trak_list = [ 'trak1']
+            trak_msg = [ '0jpg%02d.jpg' ] 
+            for trak, msg in zip(trak_list, trak_msg):
+                if trak in self.cr3:
+                    for offset, size, index in zip( self.cr3[trak][b'co64'], self.cr3[trak][b'stsz'], range( len(self.cr3[trak][b'co64']) ) ):
+                        filename = msg % (index)
+                        picture = data[ offset: offset+size ] 
+                        self.full_size=picture
             if b'THMB' in self.cr3:      
                 offset = self.cr3[b'THMB'][0]
                 jpegSize = self.cr3[b'THMB'][1].size
@@ -321,7 +320,7 @@ class MainParser:
 
     
 
-#m=MainParser('2.cr3')
+#m=MainParser(open('../android_in/1.cr3','rb').read(1024*1024*2))
 #print(m.orientation)
 #print(m.rating)
 

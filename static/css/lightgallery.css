@@ -184,7 +184,11 @@
 }
 
 .lg-toolbar {
-  display: none;
+  z-index: 1082;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 .lg-media-overlap .lg-toolbar {

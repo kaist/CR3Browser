@@ -6,11 +6,11 @@
   <title></title>
   <script src="js/jquery-3.7.1.min.js"></script>
 
+<link href="css/lightgallery.css" rel="stylesheet">
+<link href="css/lg-zoom.css" rel="stylesheet">
+<script src="js/lightgallery.umd.js"></script>
+<script src="js/lg-zoom.umd.js"></script>
 
-<script src="js/lightgallery.umd.js
-"></script>
-<link href="css/lightgallery.css
-" rel="stylesheet">
 
   <script src="js/semantic.min.js"></script>
   <link href="css/semantic.css" rel="stylesheet">
@@ -582,8 +582,10 @@ Vue.nextTick(function () {
     gallery=window.lightGallery(document.getElementById('gid'), {
         dynamic:true,
         preload:5,
+        plugins: [lgZoom],
         dynamicEl:galleryDyn,
         licenseKey:'1234',
+        actualSize: false,
         download:false,
         allowMediaOverlap:true,
         speed: 50,

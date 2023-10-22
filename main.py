@@ -11,7 +11,7 @@ from threading import Thread
 from flask import Flask,jsonify,request,make_response
 from parse_cr3 import MainParser
 from sqlwrap import Db
-is_android=False
+
 import urllib.parse
 import hashlib
 import io
@@ -23,8 +23,9 @@ import json
 def h(s):
     return hashlib.md5(s.encode('utf-8')).hexdigest()
 
-if kivy.utils.platform == 'android':
 
+is_android=False
+if kivy.utils.platform == 'android':
     is_android=True
     from jnius import autoclass,cast                                                                 
     from android.runnable import run_on_ui_thread   
@@ -32,12 +33,7 @@ if kivy.utils.platform == 'android':
     from jnius import autoclass   
     WebView = autoclass('android.webkit.WebView')
     WebViewClient = autoclass('android.webkit.WebViewClient')
-
-
-
     from android.storage import app_storage_path, primary_external_storage_path, secondary_external_storage_path     
-
-
     Intent = autoclass('android.content.Intent')
     DocumentsContract = autoclass('android.provider.DocumentsContract')
     Document = autoclass('android.provider.DocumentsContract$Document')
@@ -65,7 +61,6 @@ def create_webview(*args):
 @run_on_ui_thread
 def signal(command=None,payload={}):
     j=json.dumps({'command':command,'payload':payload})
-
     webview.loadUrl("javascript:indata('"+j+"');")
 
 
@@ -268,17 +263,17 @@ class ServiceApp(App):
                 if page==h(x.toString()):
                     u=x
             docStream = mActivity.getContentResolver().openInputStream(u)
-            intVal = bytes(docStream.readNBytes(2*1024*1024))
+            intVal = bytes(docStream.readNBytes(3*1024*1024))
         else:
             for x in self.files:
                 if page==h(x):
                     page=x
-            intVal=open('../android_in/'+page,'rb').read(2*1024*1024)
+            intVal=open('../android_in/'+page,'rb').read(3*1024*1024)
         m=MainParser(intVal)
 
 
 
-        image_binary = m.full_img
+        image_binary = m.full_size
 
         if m.orientation!=1:
             i=io.BytesIO(image_binary)
